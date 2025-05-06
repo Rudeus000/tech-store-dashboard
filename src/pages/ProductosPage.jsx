@@ -87,25 +87,16 @@ const ProductosPage = () => {
     exit: { opacity: 0 }
   };
 
-  const itemVariants = {
-    hidden: { opacity: 0, y: 20 },
-    visible: {
-      opacity: 1,
-      y: 0,
-      transition: { type: 'spring', stiffness: 100 }
-    }
-  };
-
   return (
     <motion.div 
-      className="container mx-auto py-8 px-4"
+      className="page-container"
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
       transition={{ duration: 0.4 }}
     >
-      <div className="flex justify-between items-center mb-8">
-        <h1 className="text-2xl font-bold text-tech-gray-dark">Gestión de Productos</h1>
+      <div className="flex flex-col md:flex-row justify-between items-center mb-8 gap-4">
+        <h1 className="section-title text-3xl">Gestión de Productos</h1>
         <motion.button
           onClick={() => setShowForm(!showForm)}
           className="btn btn-primary"
@@ -122,11 +113,14 @@ const ProductosPage = () => {
             initial={{ opacity: 0, height: 0 }}
             animate={{ opacity: 1, height: 'auto' }}
             exit={{ opacity: 0, height: 0 }}
-            className="mb-8 bg-white p-6 rounded-lg shadow-md"
+            className="mb-8 bg-white p-8 rounded-2xl shadow-lg border border-gray-100"
           >
-            <h2 className="text-xl font-semibold text-tech-gray-dark mb-4">Nuevo Producto</h2>
+            <h2 className="text-xl font-bold text-tech-gray-dark mb-6 flex items-center gap-2">
+              <span className="w-1.5 h-6 bg-gradient-to-b from-tech-blue to-tech-purple rounded-full"></span>
+              Nuevo Producto
+            </h2>
             <form onSubmit={handleSubmit}>
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                 <div>
                   <label className="form-label">Nombre</label>
                   <input
@@ -142,15 +136,20 @@ const ProductosPage = () => {
                 
                 <div>
                   <label className="form-label">Precio</label>
-                  <input
-                    type="number"
-                    name="precio"
-                    value={formData.precio}
-                    onChange={handleChange}
-                    step="0.01"
-                    className="form-input"
-                    placeholder="0.00"
-                  />
+                  <div className="relative">
+                    <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
+                      <span className="text-gray-500">$</span>
+                    </div>
+                    <input
+                      type="number"
+                      name="precio"
+                      value={formData.precio}
+                      onChange={handleChange}
+                      step="0.01"
+                      className="form-input pl-6"
+                      placeholder="0.00"
+                    />
+                  </div>
                   {errors.precio && <p className="form-error">{errors.precio}</p>}
                 </div>
                 
@@ -184,21 +183,36 @@ const ProductosPage = () => {
       </AnimatePresence>
       
       {loading ? (
-        <div className="flex justify-center py-12">
-          <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-tech-blue"></div>
+        <div className="flex justify-center py-20">
+          <div className="relative">
+            <div className="animate-spin rounded-full h-16 w-16 border-t-4 border-b-4 border-tech-blue"></div>
+            <div className="absolute inset-0 animate-ping rounded-full h-16 w-16 border-2 border-tech-blue-light opacity-20"></div>
+          </div>
         </div>
       ) : productos.length === 0 ? (
-        <div className="bg-white rounded-lg shadow-md p-8 text-center">
-          <p className="text-tech-gray-dark text-lg">No hay productos registrados.</p>
-          <motion.button
-            onClick={() => setShowForm(true)}
-            className="btn btn-primary mt-4"
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
-          >
-            Agregar Producto
-          </motion.button>
-        </div>
+        <motion.div 
+          className="bg-white rounded-2xl shadow-lg p-12 text-center border border-gray-100"
+          initial={{ opacity: 0, scale: 0.9 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ duration: 0.5 }}
+        >
+          <div className="flex flex-col items-center gap-4">
+            <div className="h-24 w-24 rounded-full bg-tech-blue-light/10 flex items-center justify-center mb-4">
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-12 w-12 text-tech-blue" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
+              </svg>
+            </div>
+            <p className="text-tech-gray-dark text-xl mb-4">No hay productos registrados.</p>
+            <motion.button
+              onClick={() => setShowForm(true)}
+              className="btn btn-primary"
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+            >
+              Agregar Producto
+            </motion.button>
+          </div>
+        </motion.div>
       ) : (
         <motion.div 
           className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6"
@@ -207,13 +221,12 @@ const ProductosPage = () => {
           animate="visible"
         >
           {productos.map((producto) => (
-            <motion.div key={producto.id} variants={itemVariants}>
-              <ProductoCard 
-                producto={producto} 
-                onUpdate={handleUpdate}
-                onDelete={handleDelete} 
-              />
-            </motion.div>
+            <ProductoCard 
+              key={producto.id} 
+              producto={producto} 
+              onUpdate={handleUpdate}
+              onDelete={handleDelete} 
+            />
           ))}
         </motion.div>
       )}

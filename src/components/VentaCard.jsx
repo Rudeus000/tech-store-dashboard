@@ -70,23 +70,31 @@ const VentaCard = ({ venta, onUpdate, onDelete }) => {
 
   return (
     <motion.div 
-      className="bg-white rounded-lg shadow-md overflow-hidden card-hover"
-      whileHover={{ y: -5, boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05)' }}
-      transition={{ duration: 0.2 }}
+      className="card-modern overflow-hidden"
+      whileHover={{ y: -8, boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)' }}
+      transition={{ duration: 0.3, type: "spring", stiffness: 300 }}
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
     >
       {isEditing ? (
-        <form onSubmit={handleSubmit} className="p-4">
-          <div className="mb-3">
+        <motion.form 
+          onSubmit={handleSubmit} 
+          className="p-6"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 0.3 }}
+        >
+          <div className="mb-4">
             <label className="form-label">Producto</label>
             <input
               type="text"
               value={formData.producto_nombre}
               disabled
-              className="form-input bg-gray-100"
+              className="form-input bg-gray-50 text-tech-gray-dark"
             />
           </div>
           
-          <div className="mb-3">
+          <div className="mb-4">
             <label className="form-label">Cantidad vendida</label>
             <input
               type="number"
@@ -94,11 +102,12 @@ const VentaCard = ({ venta, onUpdate, onDelete }) => {
               value={formData.cantidad}
               onChange={handleChange}
               className="form-input"
+              placeholder="0"
             />
             {errors.cantidad && <p className="form-error">{errors.cantidad}</p>}
           </div>
           
-          <div className="mb-4">
+          <div className="mb-6">
             <label className="form-label">Fecha de venta</label>
             <input
               type="date"
@@ -110,7 +119,7 @@ const VentaCard = ({ venta, onUpdate, onDelete }) => {
             {errors.fecha_venta && <p className="form-error">{errors.fecha_venta}</p>}
           </div>
           
-          <div className="flex justify-end space-x-2">
+          <div className="flex justify-end space-x-3">
             <motion.button
               type="button"
               onClick={() => setIsEditing(false)}
@@ -129,31 +138,43 @@ const VentaCard = ({ venta, onUpdate, onDelete }) => {
               Guardar cambios
             </motion.button>
           </div>
-        </form>
+        </motion.form>
       ) : (
-        <div className="p-4">
-          <h3 className="text-lg font-semibold text-tech-gray-dark">{venta.producto_nombre}</h3>
-          <div className="mt-2 space-y-1">
-            <p className="text-tech-gray">Cantidad: <span className="font-medium">{venta.cantidad} unidades</span></p>
-            <p className="text-tech-gray">Fecha: <span className="font-medium">{formatDate(venta.fecha_venta)}</span></p>
-          </div>
-          <div className="mt-4 flex justify-end space-x-2">
-            <motion.button
-              onClick={() => setIsEditing(true)}
-              className="btn btn-secondary"
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-            >
-              Editar
-            </motion.button>
-            <motion.button
-              onClick={handleDelete}
-              className="btn btn-danger"
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-            >
-              Eliminar
-            </motion.button>
+        <div className="relative">
+          <motion.div 
+            className="absolute top-0 right-0 w-24 h-24 bg-gradient-to-br from-tech-orange-light/20 to-tech-pink-light/30 -rotate-45 transform origin-top-left"
+            whileHover={{ scale: 1.2, rotate: -50 }}
+          />
+          <div className="p-6 relative">
+            <h3 className="text-xl font-bold mb-2 text-tech-gray-dark">{venta.producto_nombre}</h3>
+            <div className="space-y-2">
+              <div className="flex items-center gap-2">
+                <span className="bg-tech-orange-light/20 text-tech-orange-dark px-3 py-1 rounded-full text-sm font-medium">
+                  {venta.cantidad} unidades
+                </span>
+                <span className="bg-tech-blue-light/20 text-tech-blue-dark px-3 py-1 rounded-full text-sm font-medium">
+                  {formatDate(venta.fecha_venta)}
+                </span>
+              </div>
+            </div>
+            <div className="mt-6 flex justify-end space-x-3">
+              <motion.button
+                onClick={() => setIsEditing(true)}
+                className="btn btn-secondary"
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+              >
+                Editar
+              </motion.button>
+              <motion.button
+                onClick={handleDelete}
+                className="btn btn-danger"
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+              >
+                Eliminar
+              </motion.button>
+            </div>
           </div>
         </div>
       )}

@@ -54,12 +54,21 @@ export default {
           foreground: "hsl(var(--card-foreground))",
         },
         tech: {
-          blue: "#1EAEDB",
-          "blue-light": "#33C3F0",
-          "blue-dark": "#0FA0CE", 
-          gray: "#403E43",
-          "gray-dark": "#221F26",
-          "gray-light": "#9F9EA1",
+          blue: "#3B82F6",
+          "blue-light": "#60A5FA",
+          "blue-dark": "#2563EB", 
+          purple: "#8B5CF6",
+          "purple-light": "#A78BFA",
+          "purple-dark": "#7C3AED",
+          pink: "#EC4899",
+          "pink-light": "#F472B6",
+          "pink-dark": "#DB2777",
+          orange: "#F97316",
+          "orange-light": "#FB923C",
+          "orange-dark": "#EA580C",
+          gray: "#4B5563",
+          "gray-dark": "#1F2937",
+          "gray-light": "#9CA3AF",
         },
       },
       borderRadius: {
@@ -78,13 +87,29 @@ export default {
         },
         "card-hover": {
           "0%": { transform: "translateY(0)" },
-          "100%": { transform: "translateY(-5px)" }
+          "100%": { transform: "translateY(-10px)" }
+        },
+        "pulse-subtle": {
+          "0%, 100%": { opacity: "1" },
+          "50%": { opacity: "0.85" }
+        },
+        "float": {
+          "0%, 100%": { transform: "translateY(0)" },
+          "50%": { transform: "translateY(-10px)" }
         }
       },
       animation: {
         "accordion-down": "accordion-down 0.2s ease-out",
         "accordion-up": "accordion-up 0.2s ease-out",
-        "card-hover": "card-hover 0.2s ease-out forwards",
+        "card-hover": "card-hover 0.4s ease-out forwards",
+        "pulse-subtle": "pulse-subtle 3s ease-in-out infinite",
+        "float": "float 6s ease-in-out infinite"
+      },
+      backgroundImage: {
+        "gradient-radial": "radial-gradient(var(--tw-gradient-stops))",
+        "gradient-conic": "conic-gradient(from 180deg at 50% 50%, var(--tw-gradient-stops))",
+        "tech-gradient": "linear-gradient(to right, #3B82F6, #8B5CF6)",
+        "card-gradient": "linear-gradient(to bottom right, #60A5FA, #8B5CF6)",
       },
     },
   },

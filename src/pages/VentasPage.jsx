@@ -110,25 +110,16 @@ const VentasPage = () => {
     exit: { opacity: 0 }
   };
 
-  const itemVariants = {
-    hidden: { opacity: 0, y: 20 },
-    visible: {
-      opacity: 1,
-      y: 0,
-      transition: { type: 'spring', stiffness: 100 }
-    }
-  };
-
   return (
     <motion.div 
-      className="container mx-auto py-8 px-4"
+      className="page-container"
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
       transition={{ duration: 0.4 }}
     >
-      <div className="flex justify-between items-center mb-8">
-        <h1 className="text-2xl font-bold text-tech-gray-dark">Gestión de Ventas</h1>
+      <div className="flex flex-col md:flex-row justify-between items-center mb-8 gap-4">
+        <h1 className="section-title text-3xl">Gestión de Ventas</h1>
         <motion.button
           onClick={() => setShowForm(!showForm)}
           className="btn btn-primary"
@@ -145,11 +136,14 @@ const VentasPage = () => {
             initial={{ opacity: 0, height: 0 }}
             animate={{ opacity: 1, height: 'auto' }}
             exit={{ opacity: 0, height: 0 }}
-            className="mb-8 bg-white p-6 rounded-lg shadow-md"
+            className="mb-8 bg-white p-8 rounded-2xl shadow-lg border border-gray-100"
           >
-            <h2 className="text-xl font-semibold text-tech-gray-dark mb-4">Nueva Venta</h2>
+            <h2 className="text-xl font-bold text-tech-gray-dark mb-6 flex items-center gap-2">
+              <span className="w-1.5 h-6 bg-gradient-to-b from-tech-orange to-tech-pink rounded-full"></span>
+              Nueva Venta
+            </h2>
             <form onSubmit={handleSubmit}>
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                 <div>
                   <label className="form-label">Producto</label>
                   <select
@@ -210,21 +204,36 @@ const VentasPage = () => {
       </AnimatePresence>
       
       {loading ? (
-        <div className="flex justify-center py-12">
-          <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-tech-blue"></div>
+        <div className="flex justify-center py-20">
+          <div className="relative">
+            <div className="animate-spin rounded-full h-16 w-16 border-t-4 border-b-4 border-tech-orange"></div>
+            <div className="absolute inset-0 animate-ping rounded-full h-16 w-16 border-2 border-tech-orange-light opacity-20"></div>
+          </div>
         </div>
       ) : ventas.length === 0 ? (
-        <div className="bg-white rounded-lg shadow-md p-8 text-center">
-          <p className="text-tech-gray-dark text-lg">No hay ventas registradas.</p>
-          <motion.button
-            onClick={() => setShowForm(true)}
-            className="btn btn-primary mt-4"
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
-          >
-            Registrar Venta
-          </motion.button>
-        </div>
+        <motion.div 
+          className="bg-white rounded-2xl shadow-lg p-12 text-center border border-gray-100"
+          initial={{ opacity: 0, scale: 0.9 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ duration: 0.5 }}
+        >
+          <div className="flex flex-col items-center gap-4">
+            <div className="h-24 w-24 rounded-full bg-tech-orange-light/10 flex items-center justify-center mb-4">
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-12 w-12 text-tech-orange" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
+              </svg>
+            </div>
+            <p className="text-tech-gray-dark text-xl mb-4">No hay ventas registradas.</p>
+            <motion.button
+              onClick={() => setShowForm(true)}
+              className="btn btn-primary"
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+            >
+              Registrar Venta
+            </motion.button>
+          </div>
+        </motion.div>
       ) : (
         <motion.div 
           className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6"
@@ -233,13 +242,12 @@ const VentasPage = () => {
           animate="visible"
         >
           {ventas.map((venta) => (
-            <motion.div key={venta.id} variants={itemVariants}>
-              <VentaCard 
-                venta={venta} 
-                onUpdate={handleUpdate}
-                onDelete={handleDelete} 
-              />
-            </motion.div>
+            <VentaCard 
+              key={venta.id}
+              venta={venta} 
+              onUpdate={handleUpdate}
+              onDelete={handleDelete} 
+            />
           ))}
         </motion.div>
       )}

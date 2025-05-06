@@ -59,13 +59,21 @@ const ProductoCard = ({ producto, onUpdate, onDelete }) => {
 
   return (
     <motion.div 
-      className="bg-white rounded-lg shadow-md overflow-hidden card-hover"
-      whileHover={{ y: -5, boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05)' }}
-      transition={{ duration: 0.2 }}
+      className="card-modern overflow-hidden"
+      whileHover={{ y: -8, boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)' }}
+      transition={{ duration: 0.3, type: "spring", stiffness: 300 }}
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
     >
       {isEditing ? (
-        <form onSubmit={handleSubmit} className="p-4">
-          <div className="mb-3">
+        <motion.form 
+          onSubmit={handleSubmit} 
+          className="p-6"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 0.3 }}
+        >
+          <div className="mb-4">
             <label className="form-label">Nombre</label>
             <input
               type="text"
@@ -73,24 +81,31 @@ const ProductoCard = ({ producto, onUpdate, onDelete }) => {
               value={formData.nombre}
               onChange={handleChange}
               className="form-input"
+              placeholder="Nombre del producto"
             />
             {errors.nombre && <p className="form-error">{errors.nombre}</p>}
           </div>
           
-          <div className="mb-3">
+          <div className="mb-4">
             <label className="form-label">Precio</label>
-            <input
-              type="number"
-              name="precio"
-              value={formData.precio}
-              onChange={handleChange}
-              step="0.01"
-              className="form-input"
-            />
+            <div className="relative">
+              <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
+                <span className="text-gray-500">$</span>
+              </div>
+              <input
+                type="number"
+                name="precio"
+                value={formData.precio}
+                onChange={handleChange}
+                step="0.01"
+                className="form-input pl-6"
+                placeholder="0.00"
+              />
+            </div>
             {errors.precio && <p className="form-error">{errors.precio}</p>}
           </div>
           
-          <div className="mb-4">
+          <div className="mb-6">
             <label className="form-label">Cantidad en stock</label>
             <input
               type="number"
@@ -98,11 +113,12 @@ const ProductoCard = ({ producto, onUpdate, onDelete }) => {
               value={formData.stock}
               onChange={handleChange}
               className="form-input"
+              placeholder="0"
             />
             {errors.stock && <p className="form-error">{errors.stock}</p>}
           </div>
           
-          <div className="flex justify-end space-x-2">
+          <div className="flex justify-end space-x-3">
             <motion.button
               type="button"
               onClick={() => setIsEditing(false)}
@@ -121,31 +137,44 @@ const ProductoCard = ({ producto, onUpdate, onDelete }) => {
               Guardar cambios
             </motion.button>
           </div>
-        </form>
+        </motion.form>
       ) : (
-        <div className="p-4">
-          <h3 className="text-lg font-semibold text-tech-gray-dark">{producto.nombre}</h3>
-          <div className="mt-2 space-y-1">
-            <p className="text-tech-blue text-xl font-bold">${producto.precio.toFixed(2)}</p>
-            <p className="text-tech-gray">Stock: {producto.stock} unidades</p>
-          </div>
-          <div className="mt-4 flex justify-end space-x-2">
-            <motion.button
-              onClick={() => setIsEditing(true)}
-              className="btn btn-secondary"
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-            >
-              Editar
-            </motion.button>
-            <motion.button
-              onClick={handleDelete}
-              className="btn btn-danger"
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-            >
-              Eliminar
-            </motion.button>
+        <div className="relative">
+          <motion.div 
+            className="absolute top-0 right-0 w-24 h-24 bg-gradient-to-br from-tech-blue-light/20 to-tech-purple-light/30 -rotate-45 transform origin-top-left"
+            whileHover={{ scale: 1.2, rotate: -50 }}
+          />
+          <div className="p-6 relative">
+            <h3 className="text-xl font-bold mb-2 text-tech-gray-dark">{producto.nombre}</h3>
+            <div className="space-y-2">
+              <p className="text-2xl font-extrabold bg-gradient-to-r from-tech-blue to-tech-purple bg-clip-text text-transparent">
+                ${producto.precio.toFixed(2)}
+              </p>
+              <div className="flex items-center">
+                <div className={`w-3 h-3 rounded-full mr-2 ${producto.stock > 10 ? 'bg-green-500' : producto.stock > 0 ? 'bg-yellow-500' : 'bg-red-500'}`}></div>
+                <p className="text-tech-gray">
+                  {producto.stock > 0 ? `${producto.stock} unidades disponibles` : 'Sin existencias'}
+                </p>
+              </div>
+            </div>
+            <div className="mt-6 flex justify-end space-x-3">
+              <motion.button
+                onClick={() => setIsEditing(true)}
+                className="btn btn-secondary"
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+              >
+                Editar
+              </motion.button>
+              <motion.button
+                onClick={handleDelete}
+                className="btn btn-danger"
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+              >
+                Eliminar
+              </motion.button>
+            </div>
           </div>
         </div>
       )}
