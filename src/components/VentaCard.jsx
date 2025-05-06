@@ -70,6 +70,7 @@ const VentaCard = ({ venta, onUpdate, onDelete }) => {
 
   return (
     <motion.div 
+      id={`venta-${venta.id}`}
       className="card-modern overflow-hidden"
       whileHover={{ y: -8, boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)' }}
       transition={{ duration: 0.3, type: "spring", stiffness: 300 }}
@@ -148,7 +149,7 @@ const VentaCard = ({ venta, onUpdate, onDelete }) => {
           <div className="p-6 relative">
             <h3 className="text-xl font-bold mb-2 text-tech-gray-dark">{venta.producto_nombre}</h3>
             <div className="space-y-2">
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-2 flex-wrap">
                 <span className="bg-tech-orange-light/20 text-tech-orange-dark px-3 py-1 rounded-full text-sm font-medium">
                   {venta.cantidad} unidades
                 </span>

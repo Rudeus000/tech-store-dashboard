@@ -1,9 +1,10 @@
-
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { getProductos, createProducto } from '../api/api';
 import ProductoCard from '../components/ProductoCard';
 import { toast } from 'sonner';
+import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from "@/components/ui/table";
+import { Plus, ArrowUp, ArrowDown, Edit, Trash } from "lucide-react";
 
 const ProductosPage = () => {
   const [productos, setProductos] = useState([]);
@@ -15,6 +16,8 @@ const ProductosPage = () => {
     stock: ''
   });
   const [errors, setErrors] = useState({});
+  const [viewMode, setViewMode] = useState('grid'); // 'grid' o 'table'
+  const [sortConfig, setSortConfig] = useState({ key: null, direction: 'ascending' });
 
   useEffect(() => {
     fetchProductos();
@@ -75,6 +78,29 @@ const ProductosPage = () => {
     setProductos(productos.filter(p => p.id !== id));
   };
 
+  // Sorting function for table view
+  const requestSort = (key) => {
+    let direction = 'ascending';
+    if (sortConfig.key === key && sortConfig.direction === 'ascending') {
+      direction = 'descending';
+    }
+    setSortConfig({ key, direction });
+  };
+
+  const sortedProductos = React.useMemo(() => {
+    if (!sortConfig.key) return productos;
+    
+    return [...productos].sort((a, b) => {
+      if (a[sortConfig.key] < b[sortConfig.key]) {
+        return sortConfig.direction === 'ascending' ? -1 : 1;
+      }
+      if (a[sortConfig.key] > b[sortConfig.key]) {
+        return sortConfig.direction === 'ascending' ? 1 : -1;
+      }
+      return 0;
+    });
+  }, [productos, sortConfig]);
+
   // Framer Motion variants
   const containerVariants = {
     hidden: { opacity: 0 },
@@ -87,6 +113,12 @@ const ProductosPage = () => {
     exit: { opacity: 0 }
   };
 
+  const tableRowVariants = {
+    hidden: { opacity: 0, y: 20 },
+    visible: { opacity: 1, y: 0 },
+    exit: { opacity: 0, y: 20 }
+  };
+
   return (
     <motion.div 
       className="page-container"
@@ -97,14 +129,35 @@ const ProductosPage = () => {
     >
       <div className="flex flex-col md:flex-row justify-between items-center mb-8 gap-4">
         <h1 className="section-title text-3xl">Gestión de Productos</h1>
-        <motion.button
-          onClick={() => setShowForm(!showForm)}
-          className="btn btn-primary"
-          whileHover={{ scale: 1.05 }}
-          whileTap={{ scale: 0.95 }}
-        >
-          {showForm ? 'Cancelar' : 'Agregar Producto'}
-        </motion.button>
+        <div className="flex gap-4">
+          <div className="bg-white border border-gray-200 p-1 rounded-xl shadow-sm flex">
+            <button 
+              onClick={() => setViewMode('grid')} 
+              className={`px-3 py-1.5 rounded-lg transition-all ${viewMode === 'grid' ? 'bg-gradient-to-r from-tech-blue to-tech-purple text-white' : 'text-gray-500'}`}
+            >
+              Cards
+            </button>
+            <button 
+              onClick={() => setViewMode('table')} 
+              className={`px-3 py-1.5 rounded-lg transition-all ${viewMode === 'table' ? 'bg-gradient-to-r from-tech-blue to-tech-purple text-white' : 'text-gray-500'}`}
+            >
+              Tabla
+            </button>
+          </div>
+          <motion.button
+            onClick={() => setShowForm(!showForm)}
+            className="btn btn-primary"
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+          >
+            {showForm ? 'Cancelar' : (
+              <span className="flex items-center gap-2">
+                <Plus size={18} />
+                Agregar Producto
+              </span>
+            )}
+          </motion.button>
+        </div>
       </div>
       
       <AnimatePresence>
@@ -213,7 +266,7 @@ const ProductosPage = () => {
             </motion.button>
           </div>
         </motion.div>
-      ) : (
+      ) : viewMode === 'grid' ? (
         <motion.div 
           className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6"
           variants={containerVariants}
@@ -228,6 +281,119 @@ const ProductosPage = () => {
               onDelete={handleDelete} 
             />
           ))}
+        </motion.div>
+      ) : (
+        <motion.div 
+          className="bg-white rounded-2xl shadow-lg overflow-hidden border border-gray-100"
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5 }}
+        >
+          <div className="overflow-x-auto">
+            <Table>
+              <TableHeader>
+                <TableRow className="bg-gradient-to-r from-gray-50 to-gray-100 hover:bg-gray-100">
+                  <TableHead onClick={() => requestSort('nombre')} className="cursor-pointer hover:bg-gray-200 transition-colors">
+                    <div className="flex items-center">
+                      Nombre
+                      {sortConfig.key === 'nombre' && (
+                        <span className="ml-1">
+                          {sortConfig.direction === 'ascending' ? <ArrowUp size={14} /> : <ArrowDown size={14} />}
+                        </span>
+                      )}
+                    </div>
+                  </TableHead>
+                  <TableHead onClick={() => requestSort('precio')} className="cursor-pointer hover:bg-gray-200 transition-colors">
+                    <div className="flex items-center">
+                      Precio
+                      {sortConfig.key === 'precio' && (
+                        <span className="ml-1">
+                          {sortConfig.direction === 'ascending' ? <ArrowUp size={14} /> : <ArrowDown size={14} />}
+                        </span>
+                      )}
+                    </div>
+                  </TableHead>
+                  <TableHead onClick={() => requestSort('stock')} className="cursor-pointer hover:bg-gray-200 transition-colors">
+                    <div className="flex items-center">
+                      Stock
+                      {sortConfig.key === 'stock' && (
+                        <span className="ml-1">
+                          {sortConfig.direction === 'ascending' ? <ArrowUp size={14} /> : <ArrowDown size={14} />}
+                        </span>
+                      )}
+                    </div>
+                  </TableHead>
+                  <TableHead className="text-right">Acciones</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                <AnimatePresence>
+                  {sortedProductos.map((producto) => (
+                    <motion.tr
+                      key={producto.id}
+                      variants={tableRowVariants}
+                      initial="hidden"
+                      animate="visible"
+                      exit="exit"
+                      transition={{ 
+                        type: "spring", 
+                        stiffness: 300, 
+                        damping: 24
+                      }}
+                      className="border-b hover:bg-blue-50 transition-colors"
+                    >
+                      <TableCell className="font-medium">{producto.nombre}</TableCell>
+                      <TableCell className="font-semibold text-tech-blue-dark">
+                        ${producto.precio.toFixed(2)}
+                      </TableCell>
+                      <TableCell>
+                        <div className="flex items-center">
+                          <div className={`w-2 h-2 rounded-full mr-2 ${
+                            producto.stock > 10 ? 'bg-green-500' : 
+                            producto.stock > 0 ? 'bg-yellow-500' : 
+                            'bg-red-500'
+                          }`}></div>
+                          <span className={`${
+                            producto.stock > 10 ? 'text-green-700' : 
+                            producto.stock > 0 ? 'text-yellow-700' : 
+                            'text-red-700'
+                          }`}>
+                            {producto.stock} unidades
+                          </span>
+                        </div>
+                      </TableCell>
+                      <TableCell className="text-right space-x-2">
+                        <motion.button
+                          onClick={() => {
+                            // Encuentra el card correspondiente y activa su modo de edición
+                            // Aquí podríamos implementar un modal de edición o una funcionalidad específica
+                            const card = document.getElementById(`producto-${producto.id}`);
+                            if (card) {
+                              const editButton = card.querySelector('.btn-secondary');
+                              if (editButton) editButton.click();
+                            }
+                          }}
+                          className="inline-flex items-center justify-center text-center h-8 w-8 rounded-full bg-blue-100 text-blue-700 hover:bg-blue-200 transition-colors"
+                          whileHover={{ scale: 1.1 }}
+                          whileTap={{ scale: 0.95 }}
+                        >
+                          <Edit size={16} />
+                        </motion.button>
+                        <motion.button
+                          onClick={() => handleDelete(producto.id)}
+                          className="inline-flex items-center justify-center text-center h-8 w-8 rounded-full bg-red-100 text-red-700 hover:bg-red-200 transition-colors"
+                          whileHover={{ scale: 1.1 }}
+                          whileTap={{ scale: 0.95 }}
+                        >
+                          <Trash size={16} />
+                        </motion.button>
+                      </TableCell>
+                    </motion.tr>
+                  ))}
+                </AnimatePresence>
+              </TableBody>
+            </Table>
+          </div>
         </motion.div>
       )}
     </motion.div>

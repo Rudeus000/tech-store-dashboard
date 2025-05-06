@@ -1,9 +1,10 @@
-
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { getVentas, createVenta, getProductos } from '../api/api';
 import VentaCard from '../components/VentaCard';
 import { toast } from 'sonner';
+import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from "@/components/ui/table";
+import { Plus, ArrowUp, ArrowDown, Edit, Trash } from "lucide-react";
 
 const VentasPage = () => {
   const [ventas, setVentas] = useState([]);
@@ -16,6 +17,8 @@ const VentasPage = () => {
     fecha_venta: new Date().toISOString().split('T')[0]
   });
   const [errors, setErrors] = useState({});
+  const [viewMode, setViewMode] = useState('grid'); // 'grid' o 'table'
+  const [sortConfig, setSortConfig] = useState({ key: null, direction: 'ascending' });
 
   useEffect(() => {
     fetchVentas();
@@ -98,6 +101,40 @@ const VentasPage = () => {
     setVentas(ventas.filter(v => v.id !== id));
   };
 
+  // Sorting function for table view
+  const requestSort = (key) => {
+    let direction = 'ascending';
+    if (sortConfig.key === key && sortConfig.direction === 'ascending') {
+      direction = 'descending';
+    }
+    setSortConfig({ key, direction });
+  };
+
+  const sortedVentas = React.useMemo(() => {
+    if (!sortConfig.key) return ventas;
+    
+    return [...ventas].sort((a, b) => {
+      if (a[sortConfig.key] < b[sortConfig.key]) {
+        return sortConfig.direction === 'ascending' ? -1 : 1;
+      }
+      if (a[sortConfig.key] > b[sortConfig.key]) {
+        return sortConfig.direction === 'ascending' ? 1 : -1;
+      }
+      return 0;
+    });
+  }, [ventas, sortConfig]);
+
+  // Formatear la fecha para mostrar en la tabla
+  const formatDate = (dateString) => {
+    if (!dateString) return '';
+    const date = new Date(dateString);
+    return date.toLocaleDateString('es-ES', {
+      year: 'numeric',
+      month: '2-digit',
+      day: '2-digit'
+    });
+  };
+
   // Framer Motion variants
   const containerVariants = {
     hidden: { opacity: 0 },
@@ -110,6 +147,12 @@ const VentasPage = () => {
     exit: { opacity: 0 }
   };
 
+  const tableRowVariants = {
+    hidden: { opacity: 0, y: 20 },
+    visible: { opacity: 1, y: 0 },
+    exit: { opacity: 0, y: 20 }
+  };
+
   return (
     <motion.div 
       className="page-container"
@@ -120,14 +163,35 @@ const VentasPage = () => {
     >
       <div className="flex flex-col md:flex-row justify-between items-center mb-8 gap-4">
         <h1 className="section-title text-3xl">Gestión de Ventas</h1>
-        <motion.button
-          onClick={() => setShowForm(!showForm)}
-          className="btn btn-primary"
-          whileHover={{ scale: 1.05 }}
-          whileTap={{ scale: 0.95 }}
-        >
-          {showForm ? 'Cancelar' : 'Registrar Venta'}
-        </motion.button>
+        <div className="flex gap-4">
+          <div className="bg-white border border-gray-200 p-1 rounded-xl shadow-sm flex">
+            <button 
+              onClick={() => setViewMode('grid')} 
+              className={`px-3 py-1.5 rounded-lg transition-all ${viewMode === 'grid' ? 'bg-gradient-to-r from-tech-orange to-tech-pink text-white' : 'text-gray-500'}`}
+            >
+              Cards
+            </button>
+            <button 
+              onClick={() => setViewMode('table')} 
+              className={`px-3 py-1.5 rounded-lg transition-all ${viewMode === 'table' ? 'bg-gradient-to-r from-tech-orange to-tech-pink text-white' : 'text-gray-500'}`}
+            >
+              Tabla
+            </button>
+          </div>
+          <motion.button
+            onClick={() => setShowForm(!showForm)}
+            className="btn btn-primary"
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+          >
+            {showForm ? 'Cancelar' : (
+              <span className="flex items-center gap-2">
+                <Plus size={18} />
+                Registrar Venta
+              </span>
+            )}
+          </motion.button>
+        </div>
       </div>
       
       <AnimatePresence>
@@ -234,7 +298,7 @@ const VentasPage = () => {
             </motion.button>
           </div>
         </motion.div>
-      ) : (
+      ) : viewMode === 'grid' ? (
         <motion.div 
           className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6"
           variants={containerVariants}
@@ -249,6 +313,107 @@ const VentasPage = () => {
               onDelete={handleDelete} 
             />
           ))}
+        </motion.div>
+      ) : (
+        <motion.div 
+          className="bg-white rounded-2xl shadow-lg overflow-hidden border border-gray-100"
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5 }}
+        >
+          <div className="overflow-x-auto">
+            <Table>
+              <TableHeader>
+                <TableRow className="bg-gradient-to-r from-gray-50 to-gray-100 hover:bg-gray-100">
+                  <TableHead onClick={() => requestSort('producto_nombre')} className="cursor-pointer hover:bg-gray-200 transition-colors">
+                    <div className="flex items-center">
+                      Producto
+                      {sortConfig.key === 'producto_nombre' && (
+                        <span className="ml-1">
+                          {sortConfig.direction === 'ascending' ? <ArrowUp size={14} /> : <ArrowDown size={14} />}
+                        </span>
+                      )}
+                    </div>
+                  </TableHead>
+                  <TableHead onClick={() => requestSort('cantidad')} className="cursor-pointer hover:bg-gray-200 transition-colors">
+                    <div className="flex items-center">
+                      Cantidad
+                      {sortConfig.key === 'cantidad' && (
+                        <span className="ml-1">
+                          {sortConfig.direction === 'ascending' ? <ArrowUp size={14} /> : <ArrowDown size={14} />}
+                        </span>
+                      )}
+                    </div>
+                  </TableHead>
+                  <TableHead onClick={() => requestSort('fecha_venta')} className="cursor-pointer hover:bg-gray-200 transition-colors">
+                    <div className="flex items-center">
+                      Fecha
+                      {sortConfig.key === 'fecha_venta' && (
+                        <span className="ml-1">
+                          {sortConfig.direction === 'ascending' ? <ArrowUp size={14} /> : <ArrowDown size={14} />}
+                        </span>
+                      )}
+                    </div>
+                  </TableHead>
+                  <TableHead className="text-right">Acciones</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                <AnimatePresence>
+                  {sortedVentas.map((venta) => (
+                    <motion.tr
+                      key={venta.id}
+                      variants={tableRowVariants}
+                      initial="hidden"
+                      animate="visible"
+                      exit="exit"
+                      transition={{ 
+                        type: "spring", 
+                        stiffness: 300, 
+                        damping: 24
+                      }}
+                      className="border-b hover:bg-orange-50 transition-colors"
+                    >
+                      <TableCell className="font-medium">{venta.producto_nombre}</TableCell>
+                      <TableCell>
+                        <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-tech-orange-light/20 text-tech-orange-dark">
+                          {venta.cantidad} unidades
+                        </span>
+                      </TableCell>
+                      <TableCell>
+                        {formatDate(venta.fecha_venta)}
+                      </TableCell>
+                      <TableCell className="text-right space-x-2">
+                        <motion.button
+                          onClick={() => {
+                            // Encuentra el card correspondiente y activa su modo de edición
+                            const card = document.getElementById(`venta-${venta.id}`);
+                            if (card) {
+                              const editButton = card.querySelector('.btn-secondary');
+                              if (editButton) editButton.click();
+                            }
+                          }}
+                          className="inline-flex items-center justify-center text-center h-8 w-8 rounded-full bg-blue-100 text-blue-700 hover:bg-blue-200 transition-colors"
+                          whileHover={{ scale: 1.1 }}
+                          whileTap={{ scale: 0.95 }}
+                        >
+                          <Edit size={16} />
+                        </motion.button>
+                        <motion.button
+                          onClick={() => handleDelete(venta.id)}
+                          className="inline-flex items-center justify-center text-center h-8 w-8 rounded-full bg-red-100 text-red-700 hover:bg-red-200 transition-colors"
+                          whileHover={{ scale: 1.1 }}
+                          whileTap={{ scale: 0.95 }}
+                        >
+                          <Trash size={16} />
+                        </motion.button>
+                      </TableCell>
+                    </motion.tr>
+                  ))}
+                </AnimatePresence>
+              </TableBody>
+            </Table>
+          </div>
         </motion.div>
       )}
     </motion.div>
