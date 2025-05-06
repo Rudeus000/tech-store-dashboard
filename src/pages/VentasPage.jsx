@@ -19,7 +19,7 @@ const VentasPage = () => {
     fecha_venta: new Date().toISOString().split('T')[0]
   });
   const [errors, setErrors] = useState({});
-  const [viewMode, setViewMode] = useState('grid'); // 'grid' o 'table'
+  const [viewMode, setViewMode] = useState('table'); // Cambiado a 'table' por defecto
   const [sortConfig, setSortConfig] = useState({ key: null, direction: 'ascending' });
 
   useEffect(() => {
@@ -109,7 +109,6 @@ const VentasPage = () => {
     label: `${p.nombre} - $${p.precio.toFixed(2)} - Stock: ${p.stock}`
   }));
 
-  // Sorting function for table view
   const requestSort = (key) => {
     let direction = 'ascending';
     if (sortConfig.key === key && sortConfig.direction === 'ascending') {
@@ -132,7 +131,6 @@ const VentasPage = () => {
     });
   }, [ventas, sortConfig]);
 
-  // Formatear la fecha para mostrar en la tabla
   const formatDate = (dateString) => {
     if (!dateString) return '';
     const date = new Date(dateString);
@@ -144,150 +142,142 @@ const VentasPage = () => {
   };
 
   // Framer Motion variants
-  const containerVariants = {
+  const pageTransition = {
     hidden: { opacity: 0 },
-    visible: {
+    visible: { 
       opacity: 1,
       transition: {
-        staggerChildren: 0.1
+        staggerChildren: 0.05
       }
-    },
-    exit: { opacity: 0 }
+    }
   };
 
   const tableRowVariants = {
-    hidden: { opacity: 0, y: 20 },
-    visible: { opacity: 1, y: 0 },
-    exit: { opacity: 0, y: 20 }
+    hidden: { opacity: 0, y: 10 },
+    visible: { 
+      opacity: 1, 
+      y: 0,
+      transition: { type: "spring", stiffness: 300, damping: 24 }
+    },
+    exit: { opacity: 0, y: 10 }
   };
 
   return (
     <motion.div 
-      className="page-container"
+      className="page-container max-w-7xl mx-auto py-8 px-4"
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
       transition={{ duration: 0.4 }}
     >
       <div className="flex flex-col md:flex-row justify-between items-center mb-8 gap-4">
-        <h1 className="section-title text-3xl">Gestión de Ventas</h1>
+        <h1 className="text-2xl font-bold">Ventas</h1>
         <div className="flex gap-4">
-          <div className="view-switcher">
+          <div className="bg-white border border-gray-200 p-1 rounded-lg shadow-sm flex">
             <button 
               onClick={() => setViewMode('grid')} 
-              className={`view-switcher-button ${viewMode === 'grid' ? 'view-switcher-button-active' : 'view-switcher-button-inactive'}`}
+              className={`px-3 py-1.5 rounded-md transition-all ${viewMode === 'grid' ? 'bg-orange-500 text-white' : 'text-gray-600 hover:bg-gray-100'}`}
             >
               Cards
             </button>
             <button 
               onClick={() => setViewMode('table')} 
-              className={`view-switcher-button ${viewMode === 'table' ? 'view-switcher-button-active' : 'view-switcher-button-inactive'}`}
+              className={`px-3 py-1.5 rounded-md transition-all ${viewMode === 'table' ? 'bg-orange-500 text-white' : 'text-gray-600 hover:bg-gray-100'}`}
             >
               Tabla
             </button>
           </div>
           <motion.button
             onClick={() => setShowForm(!showForm)}
-            className="btn btn-primary"
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
+            className="px-4 py-2 bg-orange-500 text-white rounded-lg flex items-center gap-2 hover:bg-orange-600 transition-colors"
+            whileHover={{ scale: 1.02 }}
+            whileTap={{ scale: 0.98 }}
           >
-            {showForm ? 'Cancelar' : (
-              <span className="flex items-center gap-2">
-                <Plus size={18} />
-                Registrar Venta
-              </span>
-            )}
+            <Plus size={18} />
+            Registrar venta
           </motion.button>
         </div>
       </div>
       
       <AnimatePresence>
         {showForm && (
-          <motion.div 
-            initial={{ opacity: 0, height: 0 }}
-            animate={{ opacity: 1, height: 'auto' }}
-            exit={{ opacity: 0, height: 0 }}
-            className="mb-8"
+          <ElegantForm 
+            title="Registrar Venta"
+            onSubmit={handleSubmit}
+            onCancel={() => setShowForm(false)}
+            submitText="Registrar"
+            color="orange"
+            isModal={true}
           >
-            <ElegantForm 
-              title="Nueva Venta"
-              onSubmit={handleSubmit}
-              onCancel={() => setShowForm(false)}
-              submitText="Registrar Venta"
-              color="orange"
-            >
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                <FormField
-                  label="Producto"
-                  name="producto_id"
-                  type="select"
-                  value={formData.producto_id}
-                  onChange={handleChange}
-                  placeholder="Seleccionar producto"
-                  options={productOptions}
-                  error={errors.producto_id}
-                />
-                
-                <FormField
-                  label="Cantidad vendida"
-                  name="cantidad"
-                  type="number"
-                  value={formData.cantidad}
-                  onChange={handleChange}
-                  placeholder="0"
-                  error={errors.cantidad}
-                />
-                
-                <FormField
-                  label="Fecha de venta"
-                  name="fecha_venta"
-                  type="date"
-                  value={formData.fecha_venta}
-                  onChange={handleChange}
-                  error={errors.fecha_venta}
-                />
-              </div>
-            </ElegantForm>
-          </motion.div>
+            <FormField
+              label="Producto"
+              name="producto_id"
+              type="select"
+              value={formData.producto_id}
+              onChange={handleChange}
+              placeholder="Seleccionar producto"
+              options={productOptions}
+              error={errors.producto_id}
+            />
+            
+            <FormField
+              label="Cantidad"
+              name="cantidad"
+              type="number"
+              value={formData.cantidad}
+              onChange={handleChange}
+              placeholder="0"
+              error={errors.cantidad}
+            />
+            
+            <FormField
+              label="Fecha de venta"
+              name="fecha_venta"
+              type="date"
+              value={formData.fecha_venta}
+              onChange={handleChange}
+              error={errors.fecha_venta}
+            />
+          </ElegantForm>
         )}
       </AnimatePresence>
       
       {loading ? (
         <div className="flex justify-center py-20">
           <div className="relative">
-            <div className="animate-spin rounded-full h-16 w-16 border-t-4 border-b-4 border-tech-orange"></div>
-            <div className="absolute inset-0 animate-ping rounded-full h-16 w-16 border-2 border-tech-orange-light opacity-20"></div>
+            <div className="animate-spin rounded-full h-16 w-16 border-t-4 border-b-4 border-orange-500"></div>
+            <div className="absolute inset-0 animate-ping rounded-full h-16 w-16 border-2 border-orange-300 opacity-20"></div>
           </div>
         </div>
       ) : ventas.length === 0 ? (
         <motion.div 
-          className="bg-white rounded-2xl shadow-lg p-12 text-center border border-gray-100"
+          className="bg-white rounded-xl shadow-lg p-12 text-center border border-gray-200"
           initial={{ opacity: 0, scale: 0.9 }}
           animate={{ opacity: 1, scale: 1 }}
           transition={{ duration: 0.5 }}
         >
           <div className="flex flex-col items-center gap-4">
-            <div className="h-24 w-24 rounded-full bg-tech-orange-light/10 flex items-center justify-center mb-4">
-              <svg xmlns="http://www.w3.org/2000/svg" className="h-12 w-12 text-tech-orange" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <div className="h-20 w-20 rounded-full bg-orange-100 flex items-center justify-center mb-4">
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-10 w-10 text-orange-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
               </svg>
             </div>
-            <p className="text-tech-gray-dark text-xl mb-4">No hay ventas registradas.</p>
+            <p className="text-gray-600 text-xl mb-4">No hay ventas registradas.</p>
             <motion.button
               onClick={() => setShowForm(true)}
-              className="btn btn-primary"
+              className="px-4 py-2 bg-orange-500 text-white rounded-lg flex items-center gap-2 hover:bg-orange-600 transition-colors"
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
             >
-              Registrar Venta
+              <Plus size={18} />
+              Registrar venta
             </motion.button>
           </div>
         </motion.div>
       ) : viewMode === 'grid' ? (
         <motion.div 
           className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6"
-          variants={containerVariants}
+          variants={pageTransition}
           initial="hidden"
           animate="visible"
         >
@@ -302,16 +292,16 @@ const VentasPage = () => {
         </motion.div>
       ) : (
         <motion.div 
-          className="table-container"
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5 }}
+          className="bg-white rounded-xl shadow-lg overflow-hidden border border-gray-200"
+          variants={pageTransition}
+          initial="hidden"
+          animate="visible"
         >
           <div className="overflow-x-auto">
             <Table>
               <TableHeader>
-                <TableRow className="table-header">
-                  <TableHead onClick={() => requestSort('producto_nombre')} className="table-header-cell">
+                <TableRow className="bg-gray-50 border-b border-gray-200">
+                  <TableHead onClick={() => requestSort('producto_nombre')} className="cursor-pointer hover:bg-gray-100 transition-colors">
                     <div className="flex items-center">
                       Producto
                       {sortConfig.key === 'producto_nombre' && (
@@ -321,7 +311,7 @@ const VentasPage = () => {
                       )}
                     </div>
                   </TableHead>
-                  <TableHead onClick={() => requestSort('cantidad')} className="table-header-cell">
+                  <TableHead onClick={() => requestSort('cantidad')} className="cursor-pointer hover:bg-gray-100 transition-colors">
                     <div className="flex items-center">
                       Cantidad
                       {sortConfig.key === 'cantidad' && (
@@ -331,7 +321,7 @@ const VentasPage = () => {
                       )}
                     </div>
                   </TableHead>
-                  <TableHead onClick={() => requestSort('fecha_venta')} className="table-header-cell">
+                  <TableHead onClick={() => requestSort('fecha_venta')} className="cursor-pointer hover:bg-gray-100 transition-colors">
                     <div className="flex items-center">
                       Fecha
                       {sortConfig.key === 'fecha_venta' && (
@@ -353,16 +343,11 @@ const VentasPage = () => {
                       initial="hidden"
                       animate="visible"
                       exit="exit"
-                      transition={{ 
-                        type: "spring", 
-                        stiffness: 300, 
-                        damping: 24
-                      }}
-                      className="table-row-alt"
+                      className="border-b hover:bg-orange-50 transition-colors"
                     >
                       <TableCell className="font-medium">{venta.producto_nombre}</TableCell>
                       <TableCell>
-                        <span className="status-badge status-badge-yellow">
+                        <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-orange-100 text-orange-700">
                           {venta.cantidad} unidades
                         </span>
                       </TableCell>
@@ -379,7 +364,7 @@ const VentasPage = () => {
                               if (editButton) editButton.click();
                             }
                           }}
-                          className="action-button action-button-edit"
+                          className="inline-flex items-center justify-center h-8 w-8 rounded-full bg-blue-100 text-blue-700 hover:bg-blue-200 transition-colors"
                           whileHover={{ scale: 1.1 }}
                           whileTap={{ scale: 0.95 }}
                         >
@@ -387,7 +372,7 @@ const VentasPage = () => {
                         </motion.button>
                         <motion.button
                           onClick={() => handleDelete(venta.id)}
-                          className="action-button action-button-delete"
+                          className="inline-flex items-center justify-center h-8 w-8 rounded-full bg-red-100 text-red-700 hover:bg-red-200 transition-colors"
                           whileHover={{ scale: 1.1 }}
                           whileTap={{ scale: 0.95 }}
                         >

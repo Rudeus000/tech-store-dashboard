@@ -18,7 +18,7 @@ const ProductosPage = () => {
     stock: ''
   });
   const [errors, setErrors] = useState({});
-  const [viewMode, setViewMode] = useState('grid'); // 'grid' o 'table'
+  const [viewMode, setViewMode] = useState('table'); // Cambiado a 'table' por defecto
   const [sortConfig, setSortConfig] = useState({ key: null, direction: 'ascending' });
 
   useEffect(() => {
@@ -104,143 +104,135 @@ const ProductosPage = () => {
   }, [productos, sortConfig]);
 
   // Framer Motion variants
-  const containerVariants = {
+  const pageTransition = {
     hidden: { opacity: 0 },
-    visible: {
+    visible: { 
       opacity: 1,
       transition: {
-        staggerChildren: 0.1
+        staggerChildren: 0.05
       }
-    },
-    exit: { opacity: 0 }
+    }
   };
 
   const tableRowVariants = {
-    hidden: { opacity: 0, y: 20 },
-    visible: { opacity: 1, y: 0 },
-    exit: { opacity: 0, y: 20 }
+    hidden: { opacity: 0, y: 10 },
+    visible: { 
+      opacity: 1, 
+      y: 0,
+      transition: { type: "spring", stiffness: 300, damping: 24 }
+    },
+    exit: { opacity: 0, y: 10 }
   };
 
   return (
     <motion.div 
-      className="page-container"
+      className="page-container max-w-7xl mx-auto py-8 px-4"
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
       transition={{ duration: 0.4 }}
     >
       <div className="flex flex-col md:flex-row justify-between items-center mb-8 gap-4">
-        <h1 className="section-title text-3xl">Gestión de Productos</h1>
+        <h1 className="text-2xl font-bold">Productos</h1>
         <div className="flex gap-4">
-          <div className="view-switcher">
+          <div className="bg-white border border-gray-200 p-1 rounded-lg shadow-sm flex">
             <button 
               onClick={() => setViewMode('grid')} 
-              className={`view-switcher-button ${viewMode === 'grid' ? 'view-switcher-button-active' : 'view-switcher-button-inactive'}`}
+              className={`px-3 py-1.5 rounded-md transition-all ${viewMode === 'grid' ? 'bg-blue-600 text-white' : 'text-gray-600 hover:bg-gray-100'}`}
             >
               Cards
             </button>
             <button 
               onClick={() => setViewMode('table')} 
-              className={`view-switcher-button ${viewMode === 'table' ? 'view-switcher-button-active' : 'view-switcher-button-inactive'}`}
+              className={`px-3 py-1.5 rounded-md transition-all ${viewMode === 'table' ? 'bg-blue-600 text-white' : 'text-gray-600 hover:bg-gray-100'}`}
             >
               Tabla
             </button>
           </div>
           <motion.button
             onClick={() => setShowForm(!showForm)}
-            className="btn btn-primary"
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
+            className="px-4 py-2 bg-blue-600 text-white rounded-lg flex items-center gap-2 hover:bg-blue-700 transition-colors"
+            whileHover={{ scale: 1.02 }}
+            whileTap={{ scale: 0.98 }}
           >
-            {showForm ? 'Cancelar' : (
-              <span className="flex items-center gap-2">
-                <Plus size={18} />
-                Agregar Producto
-              </span>
-            )}
+            <Plus size={18} />
+            Agregar producto
           </motion.button>
         </div>
       </div>
       
       <AnimatePresence>
         {showForm && (
-          <motion.div 
-            initial={{ opacity: 0, height: 0 }}
-            animate={{ opacity: 1, height: 'auto' }}
-            exit={{ opacity: 0, height: 0 }}
-            className="mb-8"
+          <ElegantForm 
+            title="Agregar Producto"
+            onSubmit={handleSubmit}
+            onCancel={() => setShowForm(false)}
+            submitText="Agregar"
+            color="blue"
+            isModal={true}
           >
-            <ElegantForm 
-              title="Nuevo Producto"
-              onSubmit={handleSubmit}
-              onCancel={() => setShowForm(false)}
-              submitText="Agregar Producto"
-              color="blue"
-            >
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                <FormField
-                  label="Nombre"
-                  name="nombre"
-                  value={formData.nombre}
-                  onChange={handleChange}
-                  placeholder="Nombre del producto"
-                  error={errors.nombre}
-                />
-                
-                <FormField
-                  label="Precio"
-                  name="precio"
-                  type="number"
-                  value={formData.precio}
-                  onChange={handleChange}
-                  placeholder="0.00"
-                  error={errors.precio}
-                  prefix="$"
-                />
-                
-                <FormField
-                  label="Cantidad en stock"
-                  name="stock"
-                  type="number"
-                  value={formData.stock}
-                  onChange={handleChange}
-                  placeholder="0"
-                  error={errors.stock}
-                />
-              </div>
-            </ElegantForm>
-          </motion.div>
+            <FormField
+              label="Nombre"
+              name="nombre"
+              value={formData.nombre}
+              onChange={handleChange}
+              placeholder="Nombre del producto"
+              error={errors.nombre}
+            />
+            
+            <FormField
+              label="Precio"
+              name="precio"
+              type="number"
+              value={formData.precio}
+              onChange={handleChange}
+              placeholder="0.00"
+              error={errors.precio}
+              prefix="$"
+            />
+            
+            <FormField
+              label="Stock"
+              name="stock"
+              type="number"
+              value={formData.stock}
+              onChange={handleChange}
+              placeholder="0"
+              error={errors.stock}
+            />
+          </ElegantForm>
         )}
       </AnimatePresence>
       
       {loading ? (
         <div className="flex justify-center py-20">
           <div className="relative">
-            <div className="animate-spin rounded-full h-16 w-16 border-t-4 border-b-4 border-tech-blue"></div>
-            <div className="absolute inset-0 animate-ping rounded-full h-16 w-16 border-2 border-tech-blue-light opacity-20"></div>
+            <div className="animate-spin rounded-full h-16 w-16 border-t-4 border-b-4 border-blue-600"></div>
+            <div className="absolute inset-0 animate-ping rounded-full h-16 w-16 border-2 border-blue-400 opacity-20"></div>
           </div>
         </div>
       ) : productos.length === 0 ? (
         <motion.div 
-          className="bg-white rounded-2xl shadow-lg p-12 text-center border border-gray-100"
+          className="bg-white rounded-xl shadow-lg p-12 text-center border border-gray-200"
           initial={{ opacity: 0, scale: 0.9 }}
           animate={{ opacity: 1, scale: 1 }}
           transition={{ duration: 0.5 }}
         >
           <div className="flex flex-col items-center gap-4">
-            <div className="h-24 w-24 rounded-full bg-tech-blue-light/10 flex items-center justify-center mb-4">
-              <svg xmlns="http://www.w3.org/2000/svg" className="h-12 w-12 text-tech-blue" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
+            <div className="h-20 w-20 rounded-full bg-blue-100 flex items-center justify-center mb-4">
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-10 w-10 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
               </svg>
             </div>
-            <p className="text-tech-gray-dark text-xl mb-4">No hay productos registrados.</p>
+            <p className="text-gray-600 text-xl mb-4">No hay productos registrados.</p>
             <motion.button
               onClick={() => setShowForm(true)}
-              className="btn btn-primary"
+              className="px-4 py-2 bg-blue-600 text-white rounded-lg flex items-center gap-2 hover:bg-blue-700 transition-colors"
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
             >
-              Agregar Producto
+              <Plus size={18} />
+              Agregar producto
             </motion.button>
           </div>
         </motion.div>
@@ -262,16 +254,16 @@ const ProductosPage = () => {
         </motion.div>
       ) : (
         <motion.div 
-          className="table-container"
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5 }}
+          className="bg-white rounded-xl shadow-lg overflow-hidden border border-gray-200"
+          variants={pageTransition}
+          initial="hidden"
+          animate="visible"
         >
           <div className="overflow-x-auto">
             <Table>
               <TableHeader>
-                <TableRow className="table-header">
-                  <TableHead onClick={() => requestSort('nombre')} className="table-header-cell">
+                <TableRow className="bg-gray-50 border-b border-gray-200">
+                  <TableHead onClick={() => requestSort('nombre')} className="cursor-pointer hover:bg-gray-100 transition-colors">
                     <div className="flex items-center">
                       Nombre
                       {sortConfig.key === 'nombre' && (
@@ -281,7 +273,7 @@ const ProductosPage = () => {
                       )}
                     </div>
                   </TableHead>
-                  <TableHead onClick={() => requestSort('precio')} className="table-header-cell">
+                  <TableHead onClick={() => requestSort('precio')} className="cursor-pointer hover:bg-gray-100 transition-colors">
                     <div className="flex items-center">
                       Precio
                       {sortConfig.key === 'precio' && (
@@ -291,7 +283,7 @@ const ProductosPage = () => {
                       )}
                     </div>
                   </TableHead>
-                  <TableHead onClick={() => requestSort('stock')} className="table-header-cell">
+                  <TableHead onClick={() => requestSort('stock')} className="cursor-pointer hover:bg-gray-100 transition-colors">
                     <div className="flex items-center">
                       Stock
                       {sortConfig.key === 'stock' && (
@@ -313,15 +305,10 @@ const ProductosPage = () => {
                       initial="hidden"
                       animate="visible"
                       exit="exit"
-                      transition={{ 
-                        type: "spring", 
-                        stiffness: 300, 
-                        damping: 24
-                      }}
-                      className="table-row"
+                      className="border-b hover:bg-gray-50 transition-colors"
                     >
                       <TableCell className="font-medium">{producto.nombre}</TableCell>
-                      <TableCell className="font-semibold text-tech-blue-dark">
+                      <TableCell className="font-semibold text-blue-700">
                         ${producto.precio.toFixed(2)}
                       </TableCell>
                       <TableCell>
@@ -350,7 +337,7 @@ const ProductosPage = () => {
                               if (editButton) editButton.click();
                             }
                           }}
-                          className="action-button action-button-edit"
+                          className="inline-flex items-center justify-center h-8 w-8 rounded-full bg-blue-100 text-blue-700 hover:bg-blue-200 transition-colors"
                           whileHover={{ scale: 1.1 }}
                           whileTap={{ scale: 0.95 }}
                         >
@@ -358,7 +345,7 @@ const ProductosPage = () => {
                         </motion.button>
                         <motion.button
                           onClick={() => handleDelete(producto.id)}
-                          className="action-button action-button-delete"
+                          className="inline-flex items-center justify-center h-8 w-8 rounded-full bg-red-100 text-red-700 hover:bg-red-200 transition-colors"
                           whileHover={{ scale: 1.1 }}
                           whileTap={{ scale: 0.95 }}
                         >

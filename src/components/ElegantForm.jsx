@@ -1,51 +1,92 @@
 
 import React from 'react';
 import { motion } from 'framer-motion';
+import { X } from 'lucide-react';
 
-const ElegantForm = ({ title, children, onCancel, onSubmit, submitText = "Guardar", color = "blue" }) => {
-  const gradientColors = {
-    blue: "from-tech-blue to-tech-purple",
-    orange: "from-tech-orange to-tech-pink"
+const ElegantForm = ({ 
+  title, 
+  children, 
+  onCancel, 
+  onSubmit, 
+  submitText = "Guardar", 
+  color = "blue",
+  isModal = false 
+}) => {
+  const buttonStyles = {
+    blue: "bg-blue-600 hover:bg-blue-700",
+    orange: "bg-orange-500 hover:bg-orange-600"
   };
+
+  const containerVariants = {
+    hidden: { opacity: 0, scale: 0.95 },
+    visible: { 
+      opacity: 1, 
+      scale: 1,
+      transition: { 
+        type: "spring", 
+        damping: 25, 
+        stiffness: 300 
+      }
+    },
+    exit: { 
+      opacity: 0, 
+      scale: 0.95,
+      transition: { 
+        duration: 0.2 
+      }
+    }
+  };
+
+  const containerClass = isModal 
+    ? "fixed inset-0 flex items-center justify-center z-50 bg-black bg-opacity-50 p-4" 
+    : "w-full";
+
+  const formClass = isModal 
+    ? "bg-white rounded-xl shadow-xl w-full max-w-md overflow-hidden" 
+    : "bg-white rounded-xl shadow-lg border border-gray-200 overflow-hidden";
 
   return (
     <motion.div
-      className="w-full rounded-2xl overflow-hidden shadow-lg bg-white border border-gray-100"
-      initial={{ opacity: 0, y: 20, scale: 0.97 }}
-      animate={{ opacity: 1, y: 0, scale: 1 }}
-      exit={{ opacity: 0, y: -20, scale: 0.97 }}
-      transition={{ duration: 0.4, type: "spring", stiffness: 300 }}
+      className={containerClass}
+      variants={containerVariants}
+      initial="hidden"
+      animate="visible"
+      exit="exit"
     >
-      <div className={`bg-gradient-to-r ${gradientColors[color]} p-6 text-white`}>
-        <h2 className="text-2xl font-bold flex items-center gap-3">
-          <motion.div 
-            className="w-2 h-8 bg-white/50 rounded-full"
-            initial={{ height: 0 }}
-            animate={{ height: "2rem" }}
-            transition={{ delay: 0.2, duration: 0.5 }}
-          />
-          {title}
-        </h2>
-      </div>
-      
-      <motion.form 
-        onSubmit={onSubmit}
-        className="p-8"
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ delay: 0.2 }}
-      >
-        <div className="space-y-6">
-          {children}
+      <div className={formClass}>
+        <div className="flex items-center justify-between border-b border-gray-200 px-6 py-4">
+          <h2 className="text-xl font-semibold text-gray-800">{title}</h2>
+          {isModal && (
+            <motion.button
+              onClick={onCancel}
+              className="text-gray-400 hover:text-gray-600 focus:outline-none"
+              whileHover={{ scale: 1.1 }}
+              whileTap={{ scale: 0.9 }}
+            >
+              <X size={20} />
+            </motion.button>
+          )}
+        </div>
+        
+        <motion.form 
+          onSubmit={onSubmit}
+          className="px-6 py-4"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 0.1 }}
+        >
+          <div className="space-y-4">
+            {children}
+          </div>
           
-          <div className="pt-4 flex justify-end gap-3 border-t border-gray-100 mt-8">
+          <div className="flex justify-end gap-3 mt-6 pt-4 border-t border-gray-200">
             {onCancel && (
               <motion.button
                 type="button"
                 onClick={onCancel}
-                className="px-6 py-2.5 rounded-xl font-medium border border-gray-200 text-gray-600 hover:bg-gray-50 transition-colors shadow-sm"
-                whileHover={{ scale: 1.03 }}
-                whileTap={{ scale: 0.97 }}
+                className="px-4 py-2 rounded-lg border border-gray-300 text-gray-700 font-medium hover:bg-gray-50 transition-colors"
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
               >
                 Cancelar
               </motion.button>
@@ -53,15 +94,15 @@ const ElegantForm = ({ title, children, onCancel, onSubmit, submitText = "Guarda
             
             <motion.button
               type="submit"
-              className={`px-6 py-2.5 rounded-xl font-medium bg-gradient-to-r ${gradientColors[color]} text-white shadow-md hover:shadow-lg transition-all`}
-              whileHover={{ scale: 1.03 }}
-              whileTap={{ scale: 0.97 }}
+              className={`px-4 py-2 rounded-lg text-white font-medium ${buttonStyles[color]} transition-colors`}
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.98 }}
             >
               {submitText}
             </motion.button>
           </div>
-        </div>
-      </motion.form>
+        </motion.form>
+      </div>
     </motion.div>
   );
 };

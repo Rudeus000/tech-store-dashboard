@@ -22,7 +22,7 @@ const FormField = ({
           name={name}
           value={value}
           onChange={onChange}
-          className={`form-input ${error ? 'border-red-300 focus:border-red-500 focus:ring-red-200' : ''}`}
+          className={`w-full p-3 border ${error ? 'border-red-500' : 'border-gray-300'} rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white transition-all`}
           disabled={disabled}
         >
           <option value="">{placeholder}</option>
@@ -49,7 +49,7 @@ const FormField = ({
           value={value}
           onChange={onChange}
           placeholder={placeholder}
-          className={`form-input ${prefix ? 'pl-6' : ''} ${error ? 'border-red-300 focus:border-red-500 focus:ring-red-200' : ''}`}
+          className={`w-full p-3 border ${error ? 'border-red-500' : 'border-gray-300'} ${prefix ? 'pl-6' : ''} rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white transition-all`}
           disabled={disabled}
           step={type === "number" ? "any" : undefined}
         />
@@ -59,24 +59,26 @@ const FormField = ({
   
   return (
     <motion.div 
-      className="form-group"
+      className="mb-4"
       initial={{ opacity: 0, y: 5 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.3 }}
     >
-      <label htmlFor={name} className="form-label flex items-center gap-2">
-        {label}
-        {error && (
-          <motion.span 
-            className="text-xs text-red-500 font-normal"
-            initial={{ opacity: 0, x: -10 }}
-            animate={{ opacity: 1, x: 0 }}
-          >
-            {error}
-          </motion.span>
-        )}
-      </label>
+      {label && (
+        <label htmlFor={name} className="block text-sm font-medium text-gray-700 mb-1">
+          {label}
+        </label>
+      )}
       {renderField()}
+      {error && (
+        <motion.span 
+          className="text-xs text-red-500 mt-1 block"
+          initial={{ opacity: 0, x: -10 }}
+          animate={{ opacity: 1, x: 0 }}
+        >
+          {error}
+        </motion.span>
+      )}
     </motion.div>
   );
 };
