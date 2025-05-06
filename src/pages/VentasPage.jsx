@@ -5,6 +5,8 @@ import VentaCard from '../components/VentaCard';
 import { toast } from 'sonner';
 import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from "@/components/ui/table";
 import { Plus, ArrowUp, ArrowDown, Edit, Trash } from "lucide-react";
+import ElegantForm from '../components/ElegantForm';
+import FormField from '../components/FormField';
 
 const VentasPage = () => {
   const [ventas, setVentas] = useState([]);
@@ -101,6 +103,12 @@ const VentasPage = () => {
     setVentas(ventas.filter(v => v.id !== id));
   };
 
+  // Preparar opciones para el selector de productos
+  const productOptions = productos.map(p => ({
+    value: p.id,
+    label: `${p.nombre} - $${p.precio.toFixed(2)} - Stock: ${p.stock}`
+  }));
+
   // Sorting function for table view
   const requestSort = (key) => {
     let direction = 'ascending';
@@ -164,16 +172,16 @@ const VentasPage = () => {
       <div className="flex flex-col md:flex-row justify-between items-center mb-8 gap-4">
         <h1 className="section-title text-3xl">Gestión de Ventas</h1>
         <div className="flex gap-4">
-          <div className="bg-white border border-gray-200 p-1 rounded-xl shadow-sm flex">
+          <div className="view-switcher">
             <button 
               onClick={() => setViewMode('grid')} 
-              className={`px-3 py-1.5 rounded-lg transition-all ${viewMode === 'grid' ? 'bg-gradient-to-r from-tech-orange to-tech-pink text-white' : 'text-gray-500'}`}
+              className={`view-switcher-button ${viewMode === 'grid' ? 'view-switcher-button-active' : 'view-switcher-button-inactive'}`}
             >
               Cards
             </button>
             <button 
               onClick={() => setViewMode('table')} 
-              className={`px-3 py-1.5 rounded-lg transition-all ${viewMode === 'table' ? 'bg-gradient-to-r from-tech-orange to-tech-pink text-white' : 'text-gray-500'}`}
+              className={`view-switcher-button ${viewMode === 'table' ? 'view-switcher-button-active' : 'view-switcher-button-inactive'}`}
             >
               Tabla
             </button>
@@ -200,69 +208,47 @@ const VentasPage = () => {
             initial={{ opacity: 0, height: 0 }}
             animate={{ opacity: 1, height: 'auto' }}
             exit={{ opacity: 0, height: 0 }}
-            className="mb-8 bg-white p-8 rounded-2xl shadow-lg border border-gray-100"
+            className="mb-8"
           >
-            <h2 className="text-xl font-bold text-tech-gray-dark mb-6 flex items-center gap-2">
-              <span className="w-1.5 h-6 bg-gradient-to-b from-tech-orange to-tech-pink rounded-full"></span>
-              Nueva Venta
-            </h2>
-            <form onSubmit={handleSubmit}>
+            <ElegantForm 
+              title="Nueva Venta"
+              onSubmit={handleSubmit}
+              onCancel={() => setShowForm(false)}
+              submitText="Registrar Venta"
+              color="orange"
+            >
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                <div>
-                  <label className="form-label">Producto</label>
-                  <select
-                    name="producto_id"
-                    value={formData.producto_id}
-                    onChange={handleChange}
-                    className="form-input"
-                  >
-                    <option value="">Seleccionar producto</option>
-                    {productos.map((producto) => (
-                      <option key={producto.id} value={producto.id}>
-                        {producto.nombre} - ${producto.precio.toFixed(2)} - Stock: {producto.stock}
-                      </option>
-                    ))}
-                  </select>
-                  {errors.producto_id && <p className="form-error">{errors.producto_id}</p>}
-                </div>
+                <FormField
+                  label="Producto"
+                  name="producto_id"
+                  type="select"
+                  value={formData.producto_id}
+                  onChange={handleChange}
+                  placeholder="Seleccionar producto"
+                  options={productOptions}
+                  error={errors.producto_id}
+                />
                 
-                <div>
-                  <label className="form-label">Cantidad vendida</label>
-                  <input
-                    type="number"
-                    name="cantidad"
-                    value={formData.cantidad}
-                    onChange={handleChange}
-                    className="form-input"
-                    placeholder="0"
-                  />
-                  {errors.cantidad && <p className="form-error">{errors.cantidad}</p>}
-                </div>
+                <FormField
+                  label="Cantidad vendida"
+                  name="cantidad"
+                  type="number"
+                  value={formData.cantidad}
+                  onChange={handleChange}
+                  placeholder="0"
+                  error={errors.cantidad}
+                />
                 
-                <div>
-                  <label className="form-label">Fecha de venta</label>
-                  <input
-                    type="date"
-                    name="fecha_venta"
-                    value={formData.fecha_venta}
-                    onChange={handleChange}
-                    className="form-input"
-                  />
-                  {errors.fecha_venta && <p className="form-error">{errors.fecha_venta}</p>}
-                </div>
+                <FormField
+                  label="Fecha de venta"
+                  name="fecha_venta"
+                  type="date"
+                  value={formData.fecha_venta}
+                  onChange={handleChange}
+                  error={errors.fecha_venta}
+                />
               </div>
-              
-              <div className="mt-6 flex justify-end">
-                <motion.button
-                  type="submit"
-                  className="btn btn-primary"
-                  whileHover={{ scale: 1.05 }}
-                  whileTap={{ scale: 0.95 }}
-                >
-                  Registrar
-                </motion.button>
-              </div>
-            </form>
+            </ElegantForm>
           </motion.div>
         )}
       </AnimatePresence>
@@ -316,7 +302,7 @@ const VentasPage = () => {
         </motion.div>
       ) : (
         <motion.div 
-          className="bg-white rounded-2xl shadow-lg overflow-hidden border border-gray-100"
+          className="table-container"
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5 }}
@@ -324,8 +310,8 @@ const VentasPage = () => {
           <div className="overflow-x-auto">
             <Table>
               <TableHeader>
-                <TableRow className="bg-gradient-to-r from-gray-50 to-gray-100 hover:bg-gray-100">
-                  <TableHead onClick={() => requestSort('producto_nombre')} className="cursor-pointer hover:bg-gray-200 transition-colors">
+                <TableRow className="table-header">
+                  <TableHead onClick={() => requestSort('producto_nombre')} className="table-header-cell">
                     <div className="flex items-center">
                       Producto
                       {sortConfig.key === 'producto_nombre' && (
@@ -335,7 +321,7 @@ const VentasPage = () => {
                       )}
                     </div>
                   </TableHead>
-                  <TableHead onClick={() => requestSort('cantidad')} className="cursor-pointer hover:bg-gray-200 transition-colors">
+                  <TableHead onClick={() => requestSort('cantidad')} className="table-header-cell">
                     <div className="flex items-center">
                       Cantidad
                       {sortConfig.key === 'cantidad' && (
@@ -345,7 +331,7 @@ const VentasPage = () => {
                       )}
                     </div>
                   </TableHead>
-                  <TableHead onClick={() => requestSort('fecha_venta')} className="cursor-pointer hover:bg-gray-200 transition-colors">
+                  <TableHead onClick={() => requestSort('fecha_venta')} className="table-header-cell">
                     <div className="flex items-center">
                       Fecha
                       {sortConfig.key === 'fecha_venta' && (
@@ -372,11 +358,11 @@ const VentasPage = () => {
                         stiffness: 300, 
                         damping: 24
                       }}
-                      className="border-b hover:bg-orange-50 transition-colors"
+                      className="table-row-alt"
                     >
                       <TableCell className="font-medium">{venta.producto_nombre}</TableCell>
                       <TableCell>
-                        <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-tech-orange-light/20 text-tech-orange-dark">
+                        <span className="status-badge status-badge-yellow">
                           {venta.cantidad} unidades
                         </span>
                       </TableCell>
@@ -393,7 +379,7 @@ const VentasPage = () => {
                               if (editButton) editButton.click();
                             }
                           }}
-                          className="inline-flex items-center justify-center text-center h-8 w-8 rounded-full bg-blue-100 text-blue-700 hover:bg-blue-200 transition-colors"
+                          className="action-button action-button-edit"
                           whileHover={{ scale: 1.1 }}
                           whileTap={{ scale: 0.95 }}
                         >
@@ -401,7 +387,7 @@ const VentasPage = () => {
                         </motion.button>
                         <motion.button
                           onClick={() => handleDelete(venta.id)}
-                          className="inline-flex items-center justify-center text-center h-8 w-8 rounded-full bg-red-100 text-red-700 hover:bg-red-200 transition-colors"
+                          className="action-button action-button-delete"
                           whileHover={{ scale: 1.1 }}
                           whileTap={{ scale: 0.95 }}
                         >

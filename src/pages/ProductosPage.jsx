@@ -5,6 +5,8 @@ import ProductoCard from '../components/ProductoCard';
 import { toast } from 'sonner';
 import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from "@/components/ui/table";
 import { Plus, ArrowUp, ArrowDown, Edit, Trash } from "lucide-react";
+import ElegantForm from '../components/ElegantForm';
+import FormField from '../components/FormField';
 
 const ProductosPage = () => {
   const [productos, setProductos] = useState([]);
@@ -130,16 +132,16 @@ const ProductosPage = () => {
       <div className="flex flex-col md:flex-row justify-between items-center mb-8 gap-4">
         <h1 className="section-title text-3xl">Gestión de Productos</h1>
         <div className="flex gap-4">
-          <div className="bg-white border border-gray-200 p-1 rounded-xl shadow-sm flex">
+          <div className="view-switcher">
             <button 
               onClick={() => setViewMode('grid')} 
-              className={`px-3 py-1.5 rounded-lg transition-all ${viewMode === 'grid' ? 'bg-gradient-to-r from-tech-blue to-tech-purple text-white' : 'text-gray-500'}`}
+              className={`view-switcher-button ${viewMode === 'grid' ? 'view-switcher-button-active' : 'view-switcher-button-inactive'}`}
             >
               Cards
             </button>
             <button 
               onClick={() => setViewMode('table')} 
-              className={`px-3 py-1.5 rounded-lg transition-all ${viewMode === 'table' ? 'bg-gradient-to-r from-tech-blue to-tech-purple text-white' : 'text-gray-500'}`}
+              className={`view-switcher-button ${viewMode === 'table' ? 'view-switcher-button-active' : 'view-switcher-button-inactive'}`}
             >
               Tabla
             </button>
@@ -166,71 +168,47 @@ const ProductosPage = () => {
             initial={{ opacity: 0, height: 0 }}
             animate={{ opacity: 1, height: 'auto' }}
             exit={{ opacity: 0, height: 0 }}
-            className="mb-8 bg-white p-8 rounded-2xl shadow-lg border border-gray-100"
+            className="mb-8"
           >
-            <h2 className="text-xl font-bold text-tech-gray-dark mb-6 flex items-center gap-2">
-              <span className="w-1.5 h-6 bg-gradient-to-b from-tech-blue to-tech-purple rounded-full"></span>
-              Nuevo Producto
-            </h2>
-            <form onSubmit={handleSubmit}>
+            <ElegantForm 
+              title="Nuevo Producto"
+              onSubmit={handleSubmit}
+              onCancel={() => setShowForm(false)}
+              submitText="Agregar Producto"
+              color="blue"
+            >
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                <div>
-                  <label className="form-label">Nombre</label>
-                  <input
-                    type="text"
-                    name="nombre"
-                    value={formData.nombre}
-                    onChange={handleChange}
-                    className="form-input"
-                    placeholder="Nombre del producto"
-                  />
-                  {errors.nombre && <p className="form-error">{errors.nombre}</p>}
-                </div>
+                <FormField
+                  label="Nombre"
+                  name="nombre"
+                  value={formData.nombre}
+                  onChange={handleChange}
+                  placeholder="Nombre del producto"
+                  error={errors.nombre}
+                />
                 
-                <div>
-                  <label className="form-label">Precio</label>
-                  <div className="relative">
-                    <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
-                      <span className="text-gray-500">$</span>
-                    </div>
-                    <input
-                      type="number"
-                      name="precio"
-                      value={formData.precio}
-                      onChange={handleChange}
-                      step="0.01"
-                      className="form-input pl-6"
-                      placeholder="0.00"
-                    />
-                  </div>
-                  {errors.precio && <p className="form-error">{errors.precio}</p>}
-                </div>
+                <FormField
+                  label="Precio"
+                  name="precio"
+                  type="number"
+                  value={formData.precio}
+                  onChange={handleChange}
+                  placeholder="0.00"
+                  error={errors.precio}
+                  prefix="$"
+                />
                 
-                <div>
-                  <label className="form-label">Cantidad en stock</label>
-                  <input
-                    type="number"
-                    name="stock"
-                    value={formData.stock}
-                    onChange={handleChange}
-                    className="form-input"
-                    placeholder="0"
-                  />
-                  {errors.stock && <p className="form-error">{errors.stock}</p>}
-                </div>
+                <FormField
+                  label="Cantidad en stock"
+                  name="stock"
+                  type="number"
+                  value={formData.stock}
+                  onChange={handleChange}
+                  placeholder="0"
+                  error={errors.stock}
+                />
               </div>
-              
-              <div className="mt-6 flex justify-end">
-                <motion.button
-                  type="submit"
-                  className="btn btn-primary"
-                  whileHover={{ scale: 1.05 }}
-                  whileTap={{ scale: 0.95 }}
-                >
-                  Agregar
-                </motion.button>
-              </div>
-            </form>
+            </ElegantForm>
           </motion.div>
         )}
       </AnimatePresence>
@@ -284,7 +262,7 @@ const ProductosPage = () => {
         </motion.div>
       ) : (
         <motion.div 
-          className="bg-white rounded-2xl shadow-lg overflow-hidden border border-gray-100"
+          className="table-container"
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5 }}
@@ -292,8 +270,8 @@ const ProductosPage = () => {
           <div className="overflow-x-auto">
             <Table>
               <TableHeader>
-                <TableRow className="bg-gradient-to-r from-gray-50 to-gray-100 hover:bg-gray-100">
-                  <TableHead onClick={() => requestSort('nombre')} className="cursor-pointer hover:bg-gray-200 transition-colors">
+                <TableRow className="table-header">
+                  <TableHead onClick={() => requestSort('nombre')} className="table-header-cell">
                     <div className="flex items-center">
                       Nombre
                       {sortConfig.key === 'nombre' && (
@@ -303,7 +281,7 @@ const ProductosPage = () => {
                       )}
                     </div>
                   </TableHead>
-                  <TableHead onClick={() => requestSort('precio')} className="cursor-pointer hover:bg-gray-200 transition-colors">
+                  <TableHead onClick={() => requestSort('precio')} className="table-header-cell">
                     <div className="flex items-center">
                       Precio
                       {sortConfig.key === 'precio' && (
@@ -313,7 +291,7 @@ const ProductosPage = () => {
                       )}
                     </div>
                   </TableHead>
-                  <TableHead onClick={() => requestSort('stock')} className="cursor-pointer hover:bg-gray-200 transition-colors">
+                  <TableHead onClick={() => requestSort('stock')} className="table-header-cell">
                     <div className="flex items-center">
                       Stock
                       {sortConfig.key === 'stock' && (
@@ -340,7 +318,7 @@ const ProductosPage = () => {
                         stiffness: 300, 
                         damping: 24
                       }}
-                      className="border-b hover:bg-blue-50 transition-colors"
+                      className="table-row"
                     >
                       <TableCell className="font-medium">{producto.nombre}</TableCell>
                       <TableCell className="font-semibold text-tech-blue-dark">
@@ -366,14 +344,13 @@ const ProductosPage = () => {
                         <motion.button
                           onClick={() => {
                             // Encuentra el card correspondiente y activa su modo de edición
-                            // Aquí podríamos implementar un modal de edición o una funcionalidad específica
                             const card = document.getElementById(`producto-${producto.id}`);
                             if (card) {
                               const editButton = card.querySelector('.btn-secondary');
                               if (editButton) editButton.click();
                             }
                           }}
-                          className="inline-flex items-center justify-center text-center h-8 w-8 rounded-full bg-blue-100 text-blue-700 hover:bg-blue-200 transition-colors"
+                          className="action-button action-button-edit"
                           whileHover={{ scale: 1.1 }}
                           whileTap={{ scale: 0.95 }}
                         >
@@ -381,7 +358,7 @@ const ProductosPage = () => {
                         </motion.button>
                         <motion.button
                           onClick={() => handleDelete(producto.id)}
-                          className="inline-flex items-center justify-center text-center h-8 w-8 rounded-full bg-red-100 text-red-700 hover:bg-red-200 transition-colors"
+                          className="action-button action-button-delete"
                           whileHover={{ scale: 1.1 }}
                           whileTap={{ scale: 0.95 }}
                         >
