@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import { X } from 'lucide-react';
 
 const ElegantForm = ({ 
@@ -10,7 +10,8 @@ const ElegantForm = ({
   onSubmit, 
   submitText = "Guardar", 
   color = "blue",
-  isModal = false 
+  isModal = false,
+  compact = false
 }) => {
   const buttonStyles = {
     blue: "bg-blue-600 hover:bg-blue-700",
@@ -42,7 +43,7 @@ const ElegantForm = ({
     : "w-full";
 
   const formClass = isModal 
-    ? "bg-white rounded-xl shadow-xl w-full max-w-md overflow-hidden" 
+    ? `bg-white rounded-xl shadow-xl w-full max-w-${compact ? 'sm' : 'md'} overflow-hidden` 
     : "bg-white rounded-xl shadow-lg border border-gray-200 overflow-hidden";
 
   return (
@@ -54,8 +55,8 @@ const ElegantForm = ({
       exit="exit"
     >
       <div className={formClass}>
-        <div className="flex items-center justify-between border-b border-gray-200 px-6 py-4">
-          <h2 className="text-xl font-semibold text-gray-800">{title}</h2>
+        <div className="flex items-center justify-between border-b border-gray-200 px-6 py-3">
+          <h2 className={`${compact ? 'text-lg' : 'text-xl'} font-semibold text-gray-800`}>{title}</h2>
           {isModal && (
             <motion.button
               onClick={onCancel}
@@ -63,28 +64,26 @@ const ElegantForm = ({
               whileHover={{ scale: 1.1 }}
               whileTap={{ scale: 0.9 }}
             >
-              <X size={20} />
+              <X size={compact ? 18 : 20} />
             </motion.button>
           )}
         </div>
         
         <motion.form 
           onSubmit={onSubmit}
-          className="px-6 py-4"
+          className={`px-6 py-3 ${compact ? 'space-y-3' : 'space-y-4'}`}
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 0.1 }}
         >
-          <div className="space-y-4">
-            {children}
-          </div>
+          {children}
           
-          <div className="flex justify-end gap-3 mt-6 pt-4 border-t border-gray-200">
+          <div className={`flex justify-end gap-2 mt-4 pt-3 ${compact ? '' : 'border-t border-gray-200'}`}>
             {onCancel && (
               <motion.button
                 type="button"
                 onClick={onCancel}
-                className="px-4 py-2 rounded-lg border border-gray-300 text-gray-700 font-medium hover:bg-gray-50 transition-colors"
+                className={`px-3 py-1.5 rounded-lg border border-gray-300 text-gray-700 font-medium hover:bg-gray-50 transition-colors ${compact ? 'text-sm' : ''}`}
                 whileHover={{ scale: 1.02 }}
                 whileTap={{ scale: 0.98 }}
               >
@@ -94,7 +93,7 @@ const ElegantForm = ({
             
             <motion.button
               type="submit"
-              className={`px-4 py-2 rounded-lg text-white font-medium ${buttonStyles[color]} transition-colors`}
+              className={`px-3 py-1.5 rounded-lg text-white font-medium ${buttonStyles[color]} transition-colors ${compact ? 'text-sm' : ''}`}
               whileHover={{ scale: 1.02 }}
               whileTap={{ scale: 0.98 }}
             >

@@ -126,13 +126,13 @@ const ProductosPage = () => {
 
   return (
     <motion.div 
-      className="page-container max-w-7xl mx-auto py-8 px-4"
+      className="page-container max-w-7xl mx-auto py-6 px-4"
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
       transition={{ duration: 0.4 }}
     >
-      <div className="flex flex-col md:flex-row justify-between items-center mb-8 gap-4">
+      <div className="flex flex-col md:flex-row justify-between items-center mb-6 gap-4">
         <h1 className="text-2xl font-bold">Productos</h1>
         <div className="flex gap-4">
           <div className="bg-white border border-gray-200 p-1 rounded-lg shadow-sm flex">
@@ -170,6 +170,7 @@ const ProductosPage = () => {
             submitText="Agregar"
             color="blue"
             isModal={true}
+            compact={true}
           >
             <FormField
               label="Nombre"
@@ -178,6 +179,7 @@ const ProductosPage = () => {
               onChange={handleChange}
               placeholder="Nombre del producto"
               error={errors.nombre}
+              compact={true}
             />
             
             <FormField
@@ -189,6 +191,7 @@ const ProductosPage = () => {
               placeholder="0.00"
               error={errors.precio}
               prefix="$"
+              compact={true}
             />
             
             <FormField
@@ -199,6 +202,7 @@ const ProductosPage = () => {
               onChange={handleChange}
               placeholder="0"
               error={errors.stock}
+              compact={true}
             />
           </ElegantForm>
         )}

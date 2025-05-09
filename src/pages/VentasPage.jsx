@@ -164,13 +164,13 @@ const VentasPage = () => {
 
   return (
     <motion.div 
-      className="page-container max-w-7xl mx-auto py-8 px-4"
+      className="page-container max-w-7xl mx-auto py-6 px-4"
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
       transition={{ duration: 0.4 }}
     >
-      <div className="flex flex-col md:flex-row justify-between items-center mb-8 gap-4">
+      <div className="flex flex-col md:flex-row justify-between items-center mb-6 gap-4">
         <h1 className="text-2xl font-bold">Ventas</h1>
         <div className="flex gap-4">
           <div className="bg-white border border-gray-200 p-1 rounded-lg shadow-sm flex">
@@ -208,6 +208,7 @@ const VentasPage = () => {
             submitText="Registrar"
             color="orange"
             isModal={true}
+            compact={true}
           >
             <FormField
               label="Producto"
@@ -218,6 +219,7 @@ const VentasPage = () => {
               placeholder="Seleccionar producto"
               options={productOptions}
               error={errors.producto_id}
+              compact={true}
             />
             
             <FormField
@@ -228,6 +230,7 @@ const VentasPage = () => {
               onChange={handleChange}
               placeholder="0"
               error={errors.cantidad}
+              compact={true}
             />
             
             <FormField
@@ -237,6 +240,7 @@ const VentasPage = () => {
               value={formData.fecha_venta}
               onChange={handleChange}
               error={errors.fecha_venta}
+              compact={true}
             />
           </ElegantForm>
         )}
